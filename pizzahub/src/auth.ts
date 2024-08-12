@@ -11,17 +11,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
         CredentialsProvider({
             credentials: {
-                name: "Credentials",
                 email: { label: "Email" },
                 password: { label: "Password", type: "password" }
             },               
-            async authorize({ email, password }){
-                const response = await fetch(`${process.env.NEXT_BASEURL}/validateuser`,{
-                    method: "POST",
-                    body: JSON.stringify({email,password})
-                })
-                if(!response.ok) return null;
-                 return (await response.json()) ?? null;
+            async authorize({ email, password }, req){
+                console.log({email, password})
+                try{
+                    const response = await fetch(`http://localhost:3000/api/auth/register`,{
+                        method: "POST",
+                        body: JSON.stringify({email,password})
+                    })
+                    if(!response.ok) return null;
+                     return (await response.json()) ?? null;
+
+                }catch(e){
+                    console.log({ e })
+                }
             }, 
         }),
         GoogleProvider({
