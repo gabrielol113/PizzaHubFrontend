@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-
+import GoogleButton from "react-google-button";
 export default function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -11,7 +11,7 @@ export default function LoginForm() {
             <h1 className="mb-12 text-7xl">Pizza<span className="text-orange-500">Hub</span></h1>
             <div className="flex flex-col items-center justify-center w-1/2 h-1/2 rounded-xl border-4 border-orange-500">
                 <h1 className="text-3xl mb-8">Login</h1>
-                <form className="flex flex-col">
+                <form className="flex flex-col h-max">
                     <div className="flex flex-col mb-4">
                         <label>Email</label>
                         <input
@@ -40,6 +40,11 @@ export default function LoginForm() {
                         Send
                     </button>
                 </form>
+                <hr className=" mt-4 bg-slate-50 w-1/2"/>
+                <span className="mt-4">Or</span>
+                <div className="my-4">
+                    <GoogleButton onClick={ ()=> signIn('google')} className=" mt-8 rounded-lg"></GoogleButton>
+                </div>
             </div>
         </div>
     )

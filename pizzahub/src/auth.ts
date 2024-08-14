@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 
@@ -15,15 +17,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" }
             },               
             async authorize({ email, password }, req){
-                console.log({email, password})
                 try{
-                    const response = await fetch(`http://localhost:3000/api/auth/register`,{
+                    const baseURL = process.env.BASE_URL;
+                    console.log(baseURL);
+                    const response = await fetch(`${baseURL}/api/auth/register`,{
                         method: "POST",
                         body: JSON.stringify({email,password})
                     })
-                    if(!response.ok) return null;
-                     return (await response.json()) ?? null;
-
+                    if(response.ok){
+                        //redirect('/dashboard')
+                        return await response.json() ?? null;
+                    }
+                    if(response.status === 403){
+                        toast.error("User Already exists!")
+                        return;
+                    }
                 }catch(e){
                     console.log({ e })
                 }
@@ -34,6 +42,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientId: process.env.GOOGLE_ID,
         }),
     ], 
-    secret: process.env.NEXTAUTH_SECRET,   
-
+    session:{
+        strategy: "jwt"
+    },
+    secret: process.env.AUTH_SECRET,  
+    pages:{
+        signIn: ''
+    },
+    callbacks: {
+        // async signIn({account, profile}): Promise<boolean | null | undefined>{
+        //     if(account?.provider === "google"){
+        //         return profile?.email_verified && profile.email?.endsWith("@gmail.com")
+        //     }
+        //     return true;
+        // },
+        async jwt({token, profile, account}){
+            if(account){
+                token.accessTOken = account.access_token;
+                token.id = account.userId;
+            }
+            return token;
+        },
+        async session({session, token, user}){
+            session.userId = token.sub!;
+            return session;
+        }
+    }
 })
