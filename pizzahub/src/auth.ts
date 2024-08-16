@@ -3,8 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 
@@ -13,24 +11,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
         CredentialsProvider({
             credentials: {
-                email: { label: "Email" },
-                password: { label: "Password", type: "password" }
+                email: { label: "email", type: 'text' },
+                password: { label: "password", type: "password" }
             },               
             async authorize({ email, password }, req){
                 try{
                     const baseURL = process.env.BASE_URL;
-                    console.log(baseURL);
-                    const response = await fetch(`${baseURL}/api/auth/register`,{
+                    //verify if user exist
+                    const response = await fetch(`${baseURL}/api/user/verifyUser`,{
                         method: "POST",
-                        body: JSON.stringify({email,password})
-                    })
-                    if(response.ok){
-                        //redirect('/dashboard')
-                        return await response.json() ?? null;
-                    }
-                    if(response.status === 403){
-                        toast.error("User Already exists!")
-                        return;
+                        body: JSON.stringify({ email, password }),
+                        headers: { "Content-Type": "application/json"}
+                    }) 
+                    const user = await response.json();
+                    if(user && response.ok){
+                        return user.user;
+                    }else{
+                        return null;
                     }
                 }catch(e){
                     console.log({ e })
@@ -46,26 +43,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt"
     },
     secret: process.env.AUTH_SECRET,  
-    pages:{
-        signIn: ''
-    },
     callbacks: {
-        // async signIn({account, profile}): Promise<boolean | null | undefined>{
-        //     if(account?.provider === "google"){
-        //         return profile?.email_verified && profile.email?.endsWith("@gmail.com")
-        //     }
-        //     return true;
-        // },
-        async jwt({token, profile, account}){
-            if(account){
-                token.accessTOken = account.access_token;
-                token.id = account.userId;
-            }
-            return token;
-        },
-        async session({session, token, user}){
-            session.userId = token.sub!;
+        async session({session, token}){
+            session.user.id = token.sub!;
+            console.log(session);
             return session;
-        }
-    }
+        },
+    },
+        events: {
+          signOut() {
+            console.log('cookies deleted');
+          },
+        },
+    
 })

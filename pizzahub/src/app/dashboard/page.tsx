@@ -5,7 +5,7 @@ import Header from "@/Components/Header";
 
 export default async function Dashboard(){
     const session = await auth();
-    console.log(session);
+    console.log(session?.user);
     if(!session) redirect('/auth')
     return(
         <div className="w-screen h-screen bg-blue-950">
