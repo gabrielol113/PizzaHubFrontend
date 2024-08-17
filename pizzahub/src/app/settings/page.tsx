@@ -35,28 +35,35 @@ export default function Settings(){
             toast.success("User updated with success!");
         }
     }
-    function handleImage(e, data: FormData){
-        console.log(data);
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImg(reader.result);
-        };
-        reader.readAsDataURL(file);
-    }
+    // function handleImage(e, data: FormData){
+    //     console.log(data);
+    //     const file = e.target.files[0];
+    //     const reader = new FileReader();
+    //     reader.onloadend = () => {
+    //         setImg(reader.result);
+    //     };
+    //     reader.readAsDataURL(file);
+    // }
     return(
         <div className='w-screen h-screen bg-blue-950'>
             <Header />
             <div className='flex flex-col my-8 p-8 justify-center items-center w-full border-2'>
                 <h1 className='my-8 text-3xl'>Settings</h1>
                 <form className='flex flex-col justify-center items-center' onSubmit={ handleSubmit(handleSave) }>
-                    <div>
-                        <input 
-                            type='file'
-                            accept='image/*' 
-                            { ...register('profileImg', { required: false })}
-                        />
-                        <Image src={data.img} alt={`${fname} Photo`}/>
+                    <div className='flex flex-col justify-center cursor-pointer border-dashed items-center border-2 border-orange-500 w-48 h-48 px-8 rounded-full'>
+                        <label className='flex flex-col items-center cursor-pointer hover:blur-sm'>
+                            <input 
+                                className='hidden'
+                                type='file'
+                                id="dropzone"
+                                accept='image/*' 
+                                { ...register('profileImg', { required: false })}
+                            />
+                            <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p className='text-sm'>Click to upload or drag and drop</p>
+                        </label>
                     </div>
                     <div className="flex flex-col mb-4 space-y-4">
                         <label>Email</label>

@@ -8,12 +8,14 @@ export default async function Dashboard(){
     console.log(session?.user);
     if(!session) redirect('/auth')
     return(
-        <div className="w-screen h-screen bg-blue-950">
-
+        <>
             <Header />
-            <h1>Dashboard</h1>
-            <p>Hello, {session?.user?.name}!</p>
-            <Orders />
-        </div>
+            <div className="w-dvh h-dvh pl-16 bg-blue-950">
+
+                <h1>Dashboard</h1>
+                <p>Hello, {session?.user?.name}!</p>
+                <Orders />
+            </div>
+        </>
     )
 }
